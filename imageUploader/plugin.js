@@ -1,28 +1,28 @@
-CKEDITOR.plugins.add( 'imageUploader', {
+CKEDITOR.plugins.add( 'taenzerImageUploader', {
     requires: 'filetools',
     beforeInit: function( editor ) {
-        if (!!!CKEDITOR.fileTools) {
+        if (!CKEDITOR.fileTools) {
             console.log("Please add the plugins fileTools and its requirements.")
         }
     },
     init: function( editor ) {
         // add file type filter
-        var fileDialog = $('<input type="file" accept="image/*" />'),
-            allowed = 'img[alt,!src]{border-style,border-width,float,height,margin,margin-bottom,margin-left,margin-right,margin-top,width}',
-            required = 'img[alt,src]';
-                
-        fileDialog.on('change', function (e) {
-            var fileTools = CKEDITOR.fileTools,
-                uploadUrl = fileTools.getUploadUrl( editor.config, 'image' ),
-                file = e.target.files[0],
-                loader = editor.uploadRepository.create(file),
-                reader = new FileReader(),
-                notification,
-                img;
-            
+        var fileDialog = document.createElement('input');
+        fileDialog.setAttribute('type', 'file');
+        fileDialog.setAttribute('accept', 'image/*');
+        var allowed = 'img[alt,!src]{border-style,border-width,float,height,margin,margin-bottom,margin-left,margin-right,margin-top,width}';
+        var required = 'img[alt,src]';
+
+        fileDialog.addEventListener('change', function(e) {
+            var fileTools = CKEDITOR.fileTools;
+            var uploadUrl = fileTools.getUploadUrl( editor.config, 'image' );
+            var file = e.target.files[0];
+            var loader = editor.uploadRepository.create(file);
+            var reader = new FileReader();
+
             // verify
             if (!/image/i.test(file.type)) {
-                notification = editor.showNotification( 'Please check the correct format.', 'warning' );
+                notification = editor.showNotification('Please check the correct format.', 'warning');
 
                 setTimeout(function() {
                     notification.hide()
@@ -30,7 +30,7 @@ CKEDITOR.plugins.add( 'imageUploader', {
 
                 return false
             }
-            
+
             loader.upload(uploadUrl);
 
             // preview image
@@ -43,11 +43,11 @@ CKEDITOR.plugins.add( 'imageUploader', {
                 editor.insertElement(img);
             }
 
-            loader.on('uploaded', function(evt) {
+            loader.on('uploaded', function(e) {
                 editor.widgets.initOn(img, 'image', {
-                    src: evt.sender.url
+                    src: e.sender.url
                 });
-                img.setAttribute('src', evt.sender.url);
+                img.setAttribute('src', e.sender.url);
                 img.setStyle('opacity', 1);
             });
 
@@ -56,9 +56,9 @@ CKEDITOR.plugins.add( 'imageUploader', {
             });
 
             fileTools.bindNotifications(editor, loader);
-            
+
             // empty input
-            fileDialog[0].value = "";
+            fileDialog.value = "";
         });
 
         // Add toolbar button for this plugin.
